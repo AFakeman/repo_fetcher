@@ -1,12 +1,22 @@
 import gitlab
 import subprocess
 import sys
+import os
 
 GROUP_NAME = 'tpcc-course-2018'
 PRIVATE_TOKEN = ''
 BRANCH_NAME = sys.argv[1]
 TMPDIR = 'tmp'
 OUTPUT_DIR = 'output'
+
+
+def add_prefix_to_files(path, prefix):
+    for dirpath, _, filenames in os.walk(path):
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            new_file_path = os.path.join(dirpath, prefix + filename)
+            os.rename(file_path, new_file_path)
+
 
 api = gitlab.Gitlab("https://gitlab.com", private_token=PRIVATE_TOKEN)
 api.auth()
@@ -46,8 +56,6 @@ for idx, project in enumerate(projects):
         continue
     subprocess.run(["git", "clone", "--branch", BRANCH_NAME, ssh_url, TMPDIR])
     subprocess.run(["rm", "-rf", "{}/.git".format(TMPDIR)])
-    new_name_mask = '{{}}_{}'.format(repo_name)
-    subprocess.run(["find", TMPDIR, "-type", "f", "-exec", "mv", "{}",
-                    new_name_mask, ";"])
+    add_prefix_to_files(TMPDIR, repo_name + '_')
     subprocess.run(["rsync", "-a", TMPDIR + '/', OUTPUT_DIR + '/'])
     subprocess.run(["rm", "-rf", TMPDIR])
