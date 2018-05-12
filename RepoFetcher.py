@@ -30,7 +30,7 @@ class RepoFetcher:
                 new_file_path = os.path.join(dirpath, prefix + filename)
                 os.rename(file_path, new_file_path)
 
-    def check(self):
+    def collect(self):
         projects = self.get_projects()
 
         subprocess.run(["rm", "-rf", self.config.TMPDIR])
@@ -51,3 +51,6 @@ class RepoFetcher:
             self.add_prefix_to_files(self.config.TMPDIR, repo_name + '_')
             subprocess.run(["rsync", "-a", self.config.TMPDIR + '/', self.config.OUTPUT_DIR + '/'])
             subprocess.run(["rm", "-rf", self.config.TMPDIR])
+
+    def check(self):
+        subprocess.run(['./moss -l cc ' + self.config.OUTPUT_DIR + '/' + self.branch + '/*.hpp'], shell=True)

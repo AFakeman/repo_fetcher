@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-import sys
+import argparse
 
 import config
 from RepoFetcher import RepoFetcher
 
 
 def main():
-    if len(sys.argv) != 2:
-        raise ValueError('Usage ./main.py <branch>')
-    branch = sys.argv[1]
-    rf = RepoFetcher(config, branch)
-    rf.check()
+    parser = argparse.ArgumentParser(description='Default argument parser')
+    parser.add_argument('branch', action='store', type=str, help='Name of the task')
+    parser.add_argument('-c', '--check', help='Flag which decides whether to do similarity checking or not',
+                        action='store_true')
+    args = parser.parse_args()
+
+    rf = RepoFetcher(config, args.branch)
+    rf.collect()
+    if args.check:
+        rf.check()
 
 
 if __name__ == '__main__':
